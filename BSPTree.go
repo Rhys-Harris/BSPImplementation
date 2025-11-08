@@ -1,13 +1,15 @@
 package main
 
+import "os"
+
 type BSPTree struct {
 	root *BSPNode
 }
 
 func (tree *BSPTree) init() {
 	tree.root = &BSPNode{
-		front: nil,
-		back: nil,
+		front:    nil,
+		back:     nil,
 		splitter: nil,
 		entities: nil,
 	}
@@ -28,4 +30,25 @@ func (tree *BSPTree) entitiesNearby(pos Pos) []*Entity {
 	}
 
 	return node.entities
+}
+
+// Dumps the BSP tree to a file
+func (tree *BSPTree) dump(fileName string) {
+	// Segments that are referenced by the nodes
+	segments := []*Segment{}
+	nodes := []*BSPNodeDump{}
+
+	tree.root.dump(&segments, &nodes, -1)
+
+	out := ""
+
+	for i := range len(segments) {
+		out += segments[i].String() + "\n"
+	}
+
+	for i := range len(nodes) {
+		out += nodes[i].String() + "\n"
+	}
+
+	os.WriteFile(fileName, []byte(out), 0664)
 }

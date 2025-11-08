@@ -15,6 +15,29 @@ type BSPNode struct {
 	entities []*Entity
 }
 
+func (node *BSPNode) dump(segments *[]*Segment, nodes *[]*BSPNodeDump, parentIndex int) {
+	nodeDump := &BSPNodeDump{
+		parent: parentIndex,
+		lines: []int{},
+	}
+
+	for i := range len(node.lines) {
+		lineIndex := len(*segments)
+		*segments = append(*segments, node.lines[i])
+		nodeDump.lines = append(nodeDump.lines, lineIndex)
+	}
+
+	thisIndex := len(*nodes)
+	*nodes = append(*nodes, nodeDump)
+
+	if node.isLeaf() {
+		return
+	}
+
+	node.front.dump(segments, nodes, thisIndex)
+	node.back.dump(segments, nodes, thisIndex)
+}
+
 func (node *BSPNode) isLeaf() bool {
 	return node.front == nil && node.back == nil
 }
@@ -80,8 +103,10 @@ func (node *BSPNode) addLine(line *Segment) bool {
 		var frontLine, backLine *Segment
 		if node.splitter.pointInFront(line.start) {
 			frontLine = l1
-		} else {
 			backLine = l2
+		} else {
+			frontLine = l2
+			backLine = l1
 		}
 
 		added := true

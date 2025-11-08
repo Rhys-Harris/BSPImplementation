@@ -1,9 +1,22 @@
 package main
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type Segment struct {
 	start, end Pos
+}
+
+func (segment *Segment) String() string {
+	return fmt.Sprintf(
+		"SEGMENT %f %f %f %f",
+		segment.start.x,
+		segment.start.y,
+		segment.end.x,
+		segment.end.y,
+	)
 }
 
 func (segment *Segment) intersect(other Segment) (Pos, LineIntersection) {
