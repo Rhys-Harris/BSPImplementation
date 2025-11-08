@@ -1,0 +1,124 @@
+package main
+
+type BSPNode struct {
+	// Children
+	front, back *BSPNode
+
+	// If a branch node
+	splitter *Segment
+
+	// Any coincident lines that
+	// may lay on the splitter
+	lines []*Segment
+
+	// If a leaf node
+	entities []*Entity
+}
+
+func (node *BSPNode) isLeaf() bool {
+	return node.front == nil && node.back == nil
+}
+
+func (node *BSPNode) addEntity(e *Entity) {
+	// Leaf case
+	if node.isLeaf() {
+		node.entities = append(node.entities, e)
+		return
+	}
+
+	// Branch case
+	if node.splitter.pointInFront(e.pos) {
+		node.front.addEntity(e)
+	} else {
+		node.back.addEntity(e)
+	}
+}
+
+func (node *BSPNode) propogateChildren() {
+	// Go through each entity, attempting
+	// to pass it on to a child
+	for i := range len(node.entities) {
+		e := node.entities[i]
+
+		if node.splitter.pointInFront(e.pos) {
+			node.front.addEntity(e)
+		} else {
+			node.back.addEntity(e)
+		}
+	}
+}
+
+func (node *BSPNode) addLine(line *Segment) bool {
+	// Leaf case
+	if node.isLeaf() {
+		node.splitter = line
+		node.lines = append(node.lines, line)
+		node.front = &BSPNode{}
+		node.back = &BSPNode{}
+		node.propogateChildren()
+		return true
+	}
+
+	// Branch case
+	
+	// Point of intesection
+	poi, intersection := node.splitter.intersectAsInfinite(*line)
+
+	switch intersection {
+	case LI_INTERSECT:
+		// Intersection case
+		l1 := &Segment{
+			line.start,
+			poi,
+		}
+
+		l2 := &Segment{
+			poi,
+			line.end,
+		}
+
+		var frontLine, backLine *Segment
+		if node.splitter.pointInFront(line.start) {
+			frontLine = l1
+		} else {
+			backLine = l2
+		}
+
+		added := true
+		added = added && node.front.addLine(frontLine)
+		added = added && node.back.addLine(backLine)
+		return added
+
+	case LI_NONE:
+		// Entirely on one side case
+		if node.splitter.pointInFront(line.start) {
+			return node.front.addLine(line)
+		} else {
+			return node.back.addLine(line)
+		}
+
+	case LI_COINCIDENT:
+		// Keep a reference, but don't use
+		// as a splitter
+		node.lines = append(node.lines, line)
+		return true
+
+	default:
+		// Invalid intersection code?
+		return false
+	}
+}
+
+func (node *BSPNode) nodeAtPos(pos Pos) *BSPNode {
+	// Leaf case
+	if node.isLeaf() {
+		return node
+	}
+
+	// Branch case
+	if node.splitter.pointInFront(pos) {
+		return node.front.nodeAtPos(pos)
+	} else {
+		return node.back.nodeAtPos(pos)
+	}
+}
