@@ -32,6 +32,10 @@ func (tree *BSPTree) entitiesNearby(pos Pos) []*Entity {
 	return node.entities
 }
 
+func (tree *BSPTree) queryEntitiesByTriangle(triangle Triangle) []*Entity {
+	return tree.root.queryEntitiesByTriangle(triangle)
+}
+
 // Dumps the BSP tree to a file
 func (tree *BSPTree) dump(fileName string) {
 	// Segments that are referenced by the nodes
@@ -51,4 +55,8 @@ func (tree *BSPTree) dump(fileName string) {
 	}
 
 	os.WriteFile(fileName, []byte(out), 0664)
+}
+
+func (tree *BSPTree) addEntity(e *Entity) {
+	tree.root.addEntity(e)
 }

@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 func main() {
 	// Load in level data
@@ -11,20 +14,44 @@ func main() {
 	bsp := &BSPTree{}
 	bsp.init()
 
-	fmt.Println("Attempting to add first line")
-	fmt.Println(bsp.addLine(level.walls[0]))
-
-	fmt.Println("Testing the 'line in front' case")
-	fmt.Println(bsp.addLine(level.walls[1]))
-
-	fmt.Println("Testing the 'line behind' case")
-	fmt.Println(bsp.addLine(level.walls[2]))
-
-	fmt.Println("Testing the 'line split' case")
-	fmt.Println(bsp.addLine(level.walls[3]))
-
-	fmt.Println("Testing the 'line coincident' case")
-	fmt.Println(bsp.addLine(level.walls[4]))
+	fmt.Println("Attempting to add lines")
+	for i := range len(level.walls) {
+		fmt.Println(bsp.addLine(level.walls[i]))
+	}
 
 	bsp.dump("output.rbsp")
+
+	// Get some entities?
+	camera := Camera{
+		pos:     Pos{0, 0},
+		angle:   0,
+		viewDis: 200,
+		fov:     math.Pi/2, // 90deg
+	}
+
+	bsp.addEntity(&Entity{
+		name: "John",
+		pos:  Pos{50, 0},
+	})
+
+	bsp.addEntity(&Entity{
+		name: "Mark",
+		pos:  Pos{0, 50},
+	})
+
+	bsp.addEntity(&Entity{
+		name: "Luke",
+		pos:  Pos{-50, 0},
+	})
+
+	bsp.addEntity(&Entity{
+		name: "Matthew",
+		pos:  Pos{0, -50},
+	})
+
+	entities := camera.getEntitiesInView(bsp)
+	fmt.Println("Found these entities")
+	for i := range len(entities) {
+		fmt.Println(entities[i].name)
+	}
 }

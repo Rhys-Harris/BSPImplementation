@@ -101,3 +101,21 @@ func (segment *Segment) pointOnLine(pos Pos) bool {
 	s := math.Sin(a2-a1)
 	return s == 0
 }
+
+// Positive if in front, negative if behind, 0 is on top
+func (segment *Segment) triangleRelation(triangle Triangle) int {
+	b1 := segment.pointInFront(triangle.p1)
+	b2 := segment.pointInFront(triangle.p2)
+	b3 := segment.pointInFront(triangle.p3)
+
+	if b1 && b2 && b3 {
+		// Fully in front
+		return 1
+	} else if !b1 && !b2 && !b3 {
+		// Fully behind
+		return -1
+	} else {
+		// Both
+		return 0
+	}
+}

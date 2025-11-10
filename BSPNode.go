@@ -15,10 +15,42 @@ type BSPNode struct {
 	entities []*Entity
 }
 
+func (node *BSPNode) queryEntitiesByTriangle(triangle Triangle) []*Entity {
+	if node.isLeaf() {
+		// Create the list of entities to
+		// give back to query
+		chosen := []*Entity{}
+
+		// Find all entities within
+		for i := range len(node.entities) {
+			e := node.entities[i]
+			if triangle.pointWithin(e.pos) {
+				chosen = append(chosen, e)
+			}
+		}
+
+		return chosen
+	}
+
+	relation := node.splitter.triangleRelation(triangle)
+
+	switch relation {
+	case 1:
+		return node.front.queryEntitiesByTriangle(triangle)
+	case -1:
+		return node.back.queryEntitiesByTriangle(triangle)
+	default:
+		return append(
+			node.front.queryEntitiesByTriangle(triangle),
+			node.back.queryEntitiesByTriangle(triangle)...,
+		)
+	}
+}
+
 func (node *BSPNode) dump(segments *[]*Segment, nodes *[]*BSPNodeDump, parentIndex int) {
 	nodeDump := &BSPNodeDump{
 		parent: parentIndex,
-		lines: []int{},
+		lines:  []int{},
 	}
 
 	for i := range len(node.lines) {
@@ -69,6 +101,9 @@ func (node *BSPNode) propogateChildren() {
 			node.back.addEntity(e)
 		}
 	}
+
+	// Clear our entities just in case
+	node.entities = []*Entity{}
 }
 
 func (node *BSPNode) addLine(line *Segment) bool {
@@ -83,7 +118,7 @@ func (node *BSPNode) addLine(line *Segment) bool {
 	}
 
 	// Branch case
-	
+
 	// Point of intesection
 	poi, intersection := node.splitter.intersectAsInfinite(*line)
 
