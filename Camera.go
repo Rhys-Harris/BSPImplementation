@@ -31,3 +31,29 @@ func (camera *Camera) createViewFrustum() Triangle {
 func (camera *Camera) getEntitiesInView(world *BSPTree) []*Entity {
 	return world.queryEntitiesByTriangle(camera.createViewFrustum())
 }
+
+
+// Queries the BSP tree using the
+// view frustum for all viewable walls
+func (camera *Camera) getWallsInView(world *BSPTree) []*Segment {
+	return camera.backfaceCull(
+		world.querySegmentsByTriangle(
+			camera.createViewFrustum(),
+			),
+		)
+}
+
+// Deletes any walls that aren't
+// facing the player
+func (camera *Camera) backfaceCull(walls []*Segment) []*Segment {
+	facing := make([]*Segment, 0, len(walls))
+
+	for i := range len(walls) {
+		w := walls[i]
+		if w.pointInFront(camera.pos) {
+			facing = append(facing, w)
+		}
+	}
+
+	return facing
+}

@@ -32,6 +32,10 @@ func (tree *BSPTree) entitiesNearby(pos Pos) []*Entity {
 	return node.entities
 }
 
+func (tree *BSPTree) querySegmentsByTriangle(triangle Triangle) []*Segment {
+	return tree.root.querySegmentsByTriangle(triangle)
+}
+
 func (tree *BSPTree) queryEntitiesByTriangle(triangle Triangle) []*Entity {
 	return tree.root.queryEntitiesByTriangle(triangle)
 }

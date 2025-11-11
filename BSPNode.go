@@ -15,6 +15,46 @@ type BSPNode struct {
 	entities []*Entity
 }
 
+func (node *BSPNode) getLinesWithinTriangle(triangle Triangle) []*Segment {
+	// Start with some capacity rather than
+	// many grow calls
+	marked := make([]*Segment, 0, len(node.lines))
+
+	// Find all intersecting lines
+	for i := range len(node.lines) {
+		s := node.lines[i]
+		if triangle.segmentIntersect(*s) {
+			marked = append(marked, s)
+		}
+	}
+
+	return marked
+}
+
+// Finds all segments that are within this triangle
+func (node *BSPNode) querySegmentsByTriangle(triangle Triangle) []*Segment {
+	if node.isLeaf() {
+		return nil
+	}
+
+	relation := node.splitter.triangleRelation(triangle)
+
+	switch relation {
+	case 1:
+		return node.front.querySegmentsByTriangle(triangle)
+	case -1:
+		return node.back.querySegmentsByTriangle(triangle)
+	default:
+		return append(
+			node.getLinesWithinTriangle(triangle),
+			append(
+				node.front.querySegmentsByTriangle(triangle),
+				node.back.querySegmentsByTriangle(triangle)...,
+			)...
+		)
+	}
+}
+
 func (node *BSPNode) queryEntitiesByTriangle(triangle Triangle) []*Entity {
 	if node.isLeaf() {
 		// Create the list of entities to

@@ -38,7 +38,7 @@ func (segment *Segment) intersect(other Segment) (Pos, LineIntersection) {
 		(segment.start.y-other.start.y)*
 			(other.start.x-other.end.x)) / d
 
-	u := ((segment.start.x-segment.end.x)*
+	u := -((segment.start.x-segment.end.x)*
 		(segment.start.y-other.start.y) -
 		(segment.start.y-segment.end.y)*
 			(segment.start.x-other.start.x)) / d
