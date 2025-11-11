@@ -36,6 +36,10 @@ func (tree *BSPTree) queryEntitiesByTriangle(triangle Triangle) []*Entity {
 	return tree.root.queryEntitiesByTriangle(triangle)
 }
 
+func (tree *BSPTree) queryEntitiesByCircle(circle Circle) []*Entity {
+	return tree.root.queryEntitiesByCircle(circle)
+}
+
 // Dumps the BSP tree to a file
 func (tree *BSPTree) dump(fileName string) {
 	// Segments that are referenced by the nodes

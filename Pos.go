@@ -20,6 +20,13 @@ func (pos Pos) scale(scale float64) Pos {
 	}
 }
 
+func (pos *Pos) distance(other Pos) float64 {
+	dx := other.x - pos.x
+	dy := other.y - pos.y
+	dis := math.Sqrt(dx*dx + dy*dy)
+	return dis
+}
+
 func (pos *Pos) angleTo(other Pos) float64 {
 	dx := other.x - pos.x
 	dy := other.y - pos.y

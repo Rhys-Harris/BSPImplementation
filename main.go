@@ -50,7 +50,16 @@ func main() {
 	})
 
 	entities := camera.getEntitiesInView(bsp)
-	fmt.Println("Found these entities")
+	fmt.Println("Found these entities from triangle")
+	for i := range len(entities) {
+		fmt.Println(entities[i].name)
+	}
+
+	entities = bsp.queryEntitiesByCircle(Circle{
+		Pos{0, 0},
+		100,
+	})	
+	fmt.Println("Found these entities from circle")
 	for i := range len(entities) {
 		fmt.Println(entities[i].name)
 	}
