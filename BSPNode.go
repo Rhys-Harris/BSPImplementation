@@ -31,6 +31,22 @@ func (node *BSPNode) getLinesWithinTriangle(triangle Triangle) []*Segment {
 	return marked
 }
 
+func (node *BSPNode) getLinesWithinRect(rect Rect) []*Segment {
+	// Start with some capacity rather than
+	// many grow calls
+	marked := make([]*Segment, 0, len(node.lines))
+
+	// Find all intersecting lines
+	for i := range len(node.lines) {
+		s := node.lines[i]
+		if rect.segmentIntersect(*s) {
+			marked = append(marked, s)
+		}
+	}
+
+	return marked
+}
+
 // Finds all segments that are within this triangle
 func (node *BSPNode) querySegmentsByTriangle(triangle Triangle) []*Segment {
 	if node.isLeaf() {
@@ -50,6 +66,30 @@ func (node *BSPNode) querySegmentsByTriangle(triangle Triangle) []*Segment {
 			append(
 				node.front.querySegmentsByTriangle(triangle),
 				node.back.querySegmentsByTriangle(triangle)...,
+			)...
+		)
+	}
+}
+
+// Finds all segments that are within this rectangle
+func (node *BSPNode) querySegmentsByRect(rect Rect) []*Segment {
+	if node.isLeaf() {
+		return nil
+	}
+
+	relation := node.splitter.rectRelation(rect)
+
+	switch relation {
+	case 1:
+		return node.front.querySegmentsByRect(rect)
+	case -1:
+		return node.back.querySegmentsByRect(rect)
+	default:
+		return append(
+			node.getLinesWithinRect(rect),
+			append(
+				node.front.querySegmentsByRect(rect),
+				node.back.querySegmentsByRect(rect)...,
 			)...
 		)
 	}
@@ -83,6 +123,38 @@ func (node *BSPNode) queryEntitiesByTriangle(triangle Triangle) []*Entity {
 		return append(
 			node.front.queryEntitiesByTriangle(triangle),
 			node.back.queryEntitiesByTriangle(triangle)...,
+		)
+	}
+}
+
+func (node *BSPNode) queryEntitiesByRect(rect Rect) []*Entity {
+	if node.isLeaf() {
+		// Create the list of entities to
+		// give back to query
+		chosen := []*Entity{}
+
+		// Find all entities within
+		for i := range len(node.entities) {
+			e := node.entities[i]
+			if rect.pointWithin(e.pos) {
+				chosen = append(chosen, e)
+			}
+		}
+
+		return chosen
+	}
+
+	relation := node.splitter.rectRelation(rect)
+
+	switch relation {
+	case 1:
+		return node.front.queryEntitiesByRect(rect)
+	case -1:
+		return node.back.queryEntitiesByRect(rect)
+	default:
+		return append(
+			node.front.queryEntitiesByRect(rect),
+			node.back.queryEntitiesByRect(rect)...,
 		)
 	}
 }
