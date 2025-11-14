@@ -63,7 +63,7 @@ func main() {
 	}
 	fmt.Println()
 
-	entities = bsp.queryEntitiesByCircle(Circle{
+	entities = bsp.queryEntities(&Circle{
 		Pos{0, 0},
 		100,
 	})	

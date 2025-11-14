@@ -87,38 +87,6 @@ func (node *BSPNode) queryEntities(shape Shape) []*Entity {
 	}
 }
 
-func (node *BSPNode) queryEntitiesByCircle(circle Circle) []*Entity {
-	if node.isLeaf() {
-		// Create the list of entities to
-		// give back to query
-		chosen := []*Entity{}
-
-		// Find all entities within
-		for i := range len(node.entities) {
-			e := node.entities[i]
-			if circle.pointWithin(e.pos) {
-				chosen = append(chosen, e)
-			}
-		}
-
-		return chosen
-	}
-
-	relation := node.splitter.circleRelation(circle)
-
-	switch relation {
-	case 1:
-		return node.front.queryEntitiesByCircle(circle)
-	case -1:
-		return node.back.queryEntitiesByCircle(circle)
-	default:
-		return append(
-			node.front.queryEntitiesByCircle(circle),
-			node.back.queryEntitiesByCircle(circle)...,
-		)
-	}
-}
-
 func (node *BSPNode) dump(segments *[]*Segment, nodes *[]*BSPNodeDump, parentIndex int) {
 	nodeDump := &BSPNodeDump{
 		parent: parentIndex,
