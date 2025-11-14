@@ -19,6 +19,11 @@ func main() {
 		fmt.Println(bsp.addLine(level.walls[i]))
 	}
 
+	fmt.Println("Height:", bsp.height())
+	fmt.Println("Count:", bsp.nodeCount())
+	fmt.Println("Balance:", bsp.balance())
+	fmt.Println("Performance:", bsp.splitPerformance())
+
 	bsp.dump("output.rbsp")
 
 	// Get some entities?

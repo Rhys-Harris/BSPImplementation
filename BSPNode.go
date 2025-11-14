@@ -15,6 +15,50 @@ type BSPNode struct {
 	entities []*Entity
 }
 
+func (node *BSPNode) height() int {
+	if node.isLeaf() {
+		return 1
+	}
+
+	h1 := node.front.height()
+	h2 := node.back.height()
+	
+	if h1 > h2 {
+		return h1 + 1
+	}
+	return h2 + 1
+}
+
+func (node *BSPNode) nodeCount() int {
+	if node.isLeaf() {
+		return 1
+	}
+
+	return 1 +
+		node.front.nodeCount() +
+		node.back.nodeCount()
+}
+
+func (node *BSPNode) balance() int {
+	if node.isLeaf() {
+		return 0
+	}
+
+	return node.front.height() - node.back.height()
+}
+
+func (node *BSPNode) splitPerformance() float64 {
+	if node.isLeaf() {
+		return 1
+	}
+
+	c1 := node.front.nodeCount()
+	c2 := node.back.nodeCount()
+	total := c1 + c2
+
+	return float64(c1) / float64(total)
+}
+
 func (node *BSPNode) getLinesWithin(shape Shape) []*Segment {
 	// Start with some capacity rather than
 	// many grow calls

@@ -15,6 +15,22 @@ func (tree *BSPTree) init() {
 	}
 }
 
+func (tree *BSPTree) height() int {
+	return tree.root.height()
+}
+
+func (tree *BSPTree) nodeCount() int {
+	return tree.root.nodeCount()
+}
+
+func (tree *BSPTree) balance() int {
+	return tree.root.balance()
+}
+
+func (tree *BSPTree) splitPerformance() float64 {
+	return tree.root.splitPerformance()
+}
+
 func (tree *BSPTree) addLine(line *Segment) bool {
 	return tree.root.addLine(line)
 }
