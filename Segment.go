@@ -168,3 +168,26 @@ func (segment *Segment) rectRelation(rect Rect) int {
 		return 0
 	}
 }
+
+// Positive if in front, negative if behind, 0 is on top
+func (segment *Segment) segmentRelation(other Segment) int {
+	_, i := segment.intersectAsInfinite(other)
+
+	if i != LI_NONE {
+		return 0
+	}
+
+	if segment.pointInFront(other.start) {
+		return 1
+	}
+
+	return -1
+}
+
+// Simply returns true if there was
+// an intersection, rather than giving
+// a `LineIntersection`
+func (segment *Segment) segmentIntersect(other Segment) bool {
+	_, li := segment.intersect(other)
+	return li != LI_NONE
+}

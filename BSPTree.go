@@ -52,6 +52,14 @@ func (tree *BSPTree) querySegmentsByRect(rect Rect) []*Segment {
 	return tree.root.querySegmentsByRect(rect)
 }
 
+func (tree *BSPTree) queryEntitiesByHitscan(scan Segment) []*Entity {
+	return tree.root.queryEntitiesByHitscan(scan)
+}
+
+func (tree *BSPTree) querySegmentsByHitscan(scan Segment) []*Segment {
+	return tree.root.querySegmentsByHitscan(scan)
+}
+
 // Dumps the BSP tree to a file
 func (tree *BSPTree) dump(fileName string) {
 	// Segments that are referenced by the nodes
