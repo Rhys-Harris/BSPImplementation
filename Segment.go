@@ -27,7 +27,7 @@ func (segment *Segment) intersect(other Segment) (Pos, LineIntersection) {
 
 	// Parallel
 	if d == 0 {
-		if segment.pointOnLine(other.start) {
+		if segment.pointWithin(other.start) {
 			return Pos{}, LI_COINCIDENT
 		}
 		return Pos{}, LI_NONE
@@ -64,7 +64,7 @@ func (segment *Segment) intersectAsInfinite(other Segment) (Pos, LineIntersectio
 
 	// Parallel
 	if d == 0 {
-		if segment.pointOnLine(other.start) {
+		if segment.pointWithin(other.start) {
 			return Pos{}, LI_COINCIDENT
 		}
 		return Pos{}, LI_NONE
@@ -95,7 +95,7 @@ func (segment *Segment) pointInFront(pos Pos) bool {
 	return s >= 0
 }
 
-func (segment *Segment) pointOnLine(pos Pos) bool {
+func (segment *Segment) pointWithin(pos Pos) bool {
 	a1 := segment.start.angleTo(segment.end)
 	a2 := segment.start.angleTo(pos)
 	s := math.Sin(a2-a1)

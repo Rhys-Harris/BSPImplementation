@@ -31,22 +31,6 @@ func (node *BSPNode) getLinesWithin(shape Shape) []*Segment {
 	return marked
 }
 
-func (node *BSPNode) getLinesWithinHitscan(scan Segment) []*Segment {
-	// Start with some capacity rather than
-	// many grow calls
-	marked := make([]*Segment, 0, len(node.lines))
-
-	// Find all intersecting lines
-	for i := range len(node.lines) {
-		s := node.lines[i]
-		if scan.segmentIntersect(*s) {
-			marked = append(marked, s)
-		}
-	}
-
-	return marked
-}
-
 // Finds all segments that are within the given shape
 func (node *BSPNode) querySegments(shape Shape) []*Segment {
 	if node.isLeaf() {
@@ -66,30 +50,6 @@ func (node *BSPNode) querySegments(shape Shape) []*Segment {
 			append(
 				node.front.querySegments(shape),
 				node.back.querySegments(shape)...,
-			)...
-		)
-	}
-}
-
-// Finds all segments that collide with hitscan
-func (node *BSPNode) querySegmentsByHitscan(scan Segment) []*Segment {
-	if node.isLeaf() {
-		return nil
-	}
-
-	relation := node.splitter.segmentRelation(scan)
-
-	switch relation {
-	case 1:
-		return node.front.querySegmentsByHitscan(scan)
-	case -1:
-		return node.back.querySegmentsByHitscan(scan)
-	default:
-		return append(
-			node.getLinesWithinHitscan(scan),
-			append(
-				node.front.querySegmentsByHitscan(scan),
-				node.back.querySegmentsByHitscan(scan)...,
 			)...
 		)
 	}
@@ -123,43 +83,6 @@ func (node *BSPNode) queryEntities(shape Shape) []*Entity {
 		return append(
 			node.front.queryEntities(shape),
 			node.back.queryEntities(shape)...,
-		)
-	}
-}
-
-func (node *BSPNode) queryEntitiesByHitscan(scan Segment) []*Entity {
-	if node.isLeaf() {
-		// Create the list of entities to
-		// give back to query
-		chosen := []*Entity{}
-
-		// Find all entities within
-		for i := range len(node.entities) {
-			e := node.entities[i]
-
-			// NOTE: Since entity is a single position,
-			// it would need to be perfectly on the line,
-			// making this method currently practically
-			// useless
-			if scan.pointOnLine(e.pos) {
-				chosen = append(chosen, e)
-			}
-		}
-
-		return chosen
-	}
-
-	relation := node.splitter.segmentRelation(scan)
-
-	switch relation {
-	case 1:
-		return node.front.queryEntitiesByHitscan(scan)
-	case -1:
-		return node.back.queryEntitiesByHitscan(scan)
-	default:
-		return append(
-			node.front.queryEntitiesByHitscan(scan),
-			node.back.queryEntitiesByHitscan(scan)...,
 		)
 	}
 }
