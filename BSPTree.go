@@ -32,6 +32,16 @@ func (tree *BSPTree) entitiesNearby(pos Pos) []*Entity {
 	return node.entities
 }
 
+// Uses generic shape so that anything
+// can be used for the query
+func (tree *BSPTree) querySegments(shape Shape) []*Segment {
+	return tree.root.querySegments(shape)
+}
+
+func (tree *BSPTree) queryEntities(shape Shape) []*Entity {
+	return tree.root.queryEntities(shape)
+}
+
 func (tree *BSPTree) querySegmentsByTriangle(triangle Triangle) []*Segment {
 	return tree.root.querySegmentsByTriangle(triangle)
 }

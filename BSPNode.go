@@ -15,6 +15,22 @@ type BSPNode struct {
 	entities []*Entity
 }
 
+func (node *BSPNode) getLinesWithin(shape Shape) []*Segment {
+	// Start with some capacity rather than
+	// many grow calls
+	marked := make([]*Segment, 0, len(node.lines))
+
+	// Find all intersecting lines
+	for i := range len(node.lines) {
+		s := node.lines[i]
+		if shape.segmentIntersect(*s) {
+			marked = append(marked, s)
+		}
+	}
+
+	return marked
+}
+
 func (node *BSPNode) getLinesWithinHitscan(scan Segment) []*Segment {
 	// Start with some capacity rather than
 	// many grow calls
@@ -61,6 +77,30 @@ func (node *BSPNode) getLinesWithinRect(rect Rect) []*Segment {
 	}
 
 	return marked
+}
+
+// Finds all segments that are within the given shape
+func (node *BSPNode) querySegments(shape Shape) []*Segment {
+	if node.isLeaf() {
+		return nil
+	}
+
+	relation := shape.segmentRelation(*node.splitter)
+
+	switch relation {
+	case 1:
+		return node.front.querySegments(shape)
+	case -1:
+		return node.back.querySegments(shape)
+	default:
+		return append(
+			node.getLinesWithin(shape),
+			append(
+				node.front.querySegments(shape),
+				node.back.querySegments(shape)...,
+			)...
+		)
+	}
 }
 
 // Finds all segments that are within this triangle
@@ -195,6 +235,38 @@ func (node *BSPNode) queryEntitiesByRect(rect Rect) []*Entity {
 		return append(
 			node.front.queryEntitiesByRect(rect),
 			node.back.queryEntitiesByRect(rect)...,
+		)
+	}
+}
+
+func (node *BSPNode) queryEntities(shape Shape) []*Entity {
+	if node.isLeaf() {
+		// Create the list of entities to
+		// give back to query
+		chosen := []*Entity{}
+
+		// Find all entities within
+		for i := range len(node.entities) {
+			e := node.entities[i]
+			if shape.pointWithin(e.pos) {
+				chosen = append(chosen, e)
+			}
+		}
+
+		return chosen
+	}
+
+	relation := shape.segmentRelation(*node.splitter)
+
+	switch relation {
+	case 1:
+		return node.front.queryEntities(shape)
+	case -1:
+		return node.back.queryEntities(shape)
+	default:
+		return append(
+			node.front.queryEntities(shape),
+			node.back.queryEntities(shape)...,
 		)
 	}
 }
