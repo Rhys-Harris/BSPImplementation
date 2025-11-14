@@ -30,3 +30,20 @@ func (triangle *Triangle) segmentIntersect(segment Segment) bool {
 
 	return triangle.pointWithin(segment.start)
 }
+
+func (triangle *Triangle) segmentRelation(segment Segment) int {
+	b1 := segment.pointInFront(triangle.p1)
+	b2 := segment.pointInFront(triangle.p2)
+	b3 := segment.pointInFront(triangle.p3)
+
+	if b1 && b2 && b3 {
+		// Fully in front
+		return 1
+	} else if !b1 && !b2 && !b3 {
+		// Fully behind
+		return -1
+	} else {
+		// Both
+		return 0
+	}
+}

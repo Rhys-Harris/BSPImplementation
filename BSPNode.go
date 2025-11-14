@@ -47,22 +47,6 @@ func (node *BSPNode) getLinesWithinHitscan(scan Segment) []*Segment {
 	return marked
 }
 
-func (node *BSPNode) getLinesWithinTriangle(triangle Triangle) []*Segment {
-	// Start with some capacity rather than
-	// many grow calls
-	marked := make([]*Segment, 0, len(node.lines))
-
-	// Find all intersecting lines
-	for i := range len(node.lines) {
-		s := node.lines[i]
-		if triangle.segmentIntersect(*s) {
-			marked = append(marked, s)
-		}
-	}
-
-	return marked
-}
-
 func (node *BSPNode) getLinesWithinRect(rect Rect) []*Segment {
 	// Start with some capacity rather than
 	// many grow calls
@@ -98,30 +82,6 @@ func (node *BSPNode) querySegments(shape Shape) []*Segment {
 			append(
 				node.front.querySegments(shape),
 				node.back.querySegments(shape)...,
-			)...
-		)
-	}
-}
-
-// Finds all segments that are within this triangle
-func (node *BSPNode) querySegmentsByTriangle(triangle Triangle) []*Segment {
-	if node.isLeaf() {
-		return nil
-	}
-
-	relation := node.splitter.triangleRelation(triangle)
-
-	switch relation {
-	case 1:
-		return node.front.querySegmentsByTriangle(triangle)
-	case -1:
-		return node.back.querySegmentsByTriangle(triangle)
-	default:
-		return append(
-			node.getLinesWithinTriangle(triangle),
-			append(
-				node.front.querySegmentsByTriangle(triangle),
-				node.back.querySegmentsByTriangle(triangle)...,
 			)...
 		)
 	}
@@ -171,38 +131,6 @@ func (node *BSPNode) querySegmentsByHitscan(scan Segment) []*Segment {
 				node.front.querySegmentsByHitscan(scan),
 				node.back.querySegmentsByHitscan(scan)...,
 			)...
-		)
-	}
-}
-
-func (node *BSPNode) queryEntitiesByTriangle(triangle Triangle) []*Entity {
-	if node.isLeaf() {
-		// Create the list of entities to
-		// give back to query
-		chosen := []*Entity{}
-
-		// Find all entities within
-		for i := range len(node.entities) {
-			e := node.entities[i]
-			if triangle.pointWithin(e.pos) {
-				chosen = append(chosen, e)
-			}
-		}
-
-		return chosen
-	}
-
-	relation := node.splitter.triangleRelation(triangle)
-
-	switch relation {
-	case 1:
-		return node.front.queryEntitiesByTriangle(triangle)
-	case -1:
-		return node.back.queryEntitiesByTriangle(triangle)
-	default:
-		return append(
-			node.front.queryEntitiesByTriangle(triangle),
-			node.back.queryEntitiesByTriangle(triangle)...,
 		)
 	}
 }

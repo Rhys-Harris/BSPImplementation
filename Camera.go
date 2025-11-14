@@ -12,8 +12,8 @@ type Camera struct {
 // Generates a bounding triangle that
 // should encapsulate everything that
 // the camera can see
-func (camera *Camera) createViewFrustum() Triangle {
-	return Triangle{
+func (camera *Camera) createViewFrustum() *Triangle {
+	return &Triangle{
 		p1: camera.pos,
 		p2: camera.pos.add(Pos{
 			math.Cos(camera.angle-camera.fov/2),
@@ -29,7 +29,7 @@ func (camera *Camera) createViewFrustum() Triangle {
 // Queries the BSP tree using the
 // view frustum for all viewable entities
 func (camera *Camera) getEntitiesInView(world *BSPTree) []*Entity {
-	return world.queryEntitiesByTriangle(camera.createViewFrustum())
+	return world.queryEntities(camera.createViewFrustum())
 }
 
 
@@ -37,7 +37,7 @@ func (camera *Camera) getEntitiesInView(world *BSPTree) []*Entity {
 // view frustum for all viewable walls
 func (camera *Camera) getWallsInView(world *BSPTree) []*Segment {
 	return camera.backfaceCull(
-		world.querySegmentsByTriangle(
+		world.querySegments(
 			camera.createViewFrustum(),
 			),
 		)
