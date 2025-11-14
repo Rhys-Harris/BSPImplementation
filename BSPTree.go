@@ -46,14 +46,6 @@ func (tree *BSPTree) queryEntitiesByCircle(circle Circle) []*Entity {
 	return tree.root.queryEntitiesByCircle(circle)
 }
 
-func (tree *BSPTree) queryEntitiesByRect(rect Rect) []*Entity {
-	return tree.root.queryEntitiesByRect(rect)
-}
-
-func (tree *BSPTree) querySegmentsByRect(rect Rect) []*Segment {
-	return tree.root.querySegmentsByRect(rect)
-}
-
 func (tree *BSPTree) queryEntitiesByHitscan(scan Segment) []*Entity {
 	return tree.root.queryEntitiesByHitscan(scan)
 }

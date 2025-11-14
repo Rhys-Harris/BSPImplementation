@@ -151,25 +151,6 @@ func (segment *Segment) circleRelation(circle Circle) int {
 }
 
 // Positive if in front, negative if behind, 0 is on top
-func (segment *Segment) rectRelation(rect Rect) int {
-	b1 := segment.pointInFront(rect.topLeft())
-	b2 := segment.pointInFront(rect.topRight())
-	b3 := segment.pointInFront(rect.bottomLeft())
-	b4 := segment.pointInFront(rect.bottomRight())
-
-	if b1 && b2 && b3 && b4 {
-		// Fully in front
-		return 1
-	} else if !b1 && !b2 && !b3 && !b4 {
-		// Fully behind
-		return -1
-	} else {
-		// Both
-		return 0
-	}
-}
-
-// Positive if in front, negative if behind, 0 is on top
 func (segment *Segment) segmentRelation(other Segment) int {
 	_, i := segment.intersectAsInfinite(other)
 

@@ -47,22 +47,6 @@ func (node *BSPNode) getLinesWithinHitscan(scan Segment) []*Segment {
 	return marked
 }
 
-func (node *BSPNode) getLinesWithinRect(rect Rect) []*Segment {
-	// Start with some capacity rather than
-	// many grow calls
-	marked := make([]*Segment, 0, len(node.lines))
-
-	// Find all intersecting lines
-	for i := range len(node.lines) {
-		s := node.lines[i]
-		if rect.segmentIntersect(*s) {
-			marked = append(marked, s)
-		}
-	}
-
-	return marked
-}
-
 // Finds all segments that are within the given shape
 func (node *BSPNode) querySegments(shape Shape) []*Segment {
 	if node.isLeaf() {
@@ -82,30 +66,6 @@ func (node *BSPNode) querySegments(shape Shape) []*Segment {
 			append(
 				node.front.querySegments(shape),
 				node.back.querySegments(shape)...,
-			)...
-		)
-	}
-}
-
-// Finds all segments that are within this rectangle
-func (node *BSPNode) querySegmentsByRect(rect Rect) []*Segment {
-	if node.isLeaf() {
-		return nil
-	}
-
-	relation := node.splitter.rectRelation(rect)
-
-	switch relation {
-	case 1:
-		return node.front.querySegmentsByRect(rect)
-	case -1:
-		return node.back.querySegmentsByRect(rect)
-	default:
-		return append(
-			node.getLinesWithinRect(rect),
-			append(
-				node.front.querySegmentsByRect(rect),
-				node.back.querySegmentsByRect(rect)...,
 			)...
 		)
 	}
@@ -131,38 +91,6 @@ func (node *BSPNode) querySegmentsByHitscan(scan Segment) []*Segment {
 				node.front.querySegmentsByHitscan(scan),
 				node.back.querySegmentsByHitscan(scan)...,
 			)...
-		)
-	}
-}
-
-func (node *BSPNode) queryEntitiesByRect(rect Rect) []*Entity {
-	if node.isLeaf() {
-		// Create the list of entities to
-		// give back to query
-		chosen := []*Entity{}
-
-		// Find all entities within
-		for i := range len(node.entities) {
-			e := node.entities[i]
-			if rect.pointWithin(e.pos) {
-				chosen = append(chosen, e)
-			}
-		}
-
-		return chosen
-	}
-
-	relation := node.splitter.rectRelation(rect)
-
-	switch relation {
-	case 1:
-		return node.front.queryEntitiesByRect(rect)
-	case -1:
-		return node.back.queryEntitiesByRect(rect)
-	default:
-		return append(
-			node.front.queryEntitiesByRect(rect),
-			node.back.queryEntitiesByRect(rect)...,
 		)
 	}
 }
